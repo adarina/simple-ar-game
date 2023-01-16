@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:arkit_plugin/arkit_plugin.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart' as color;
@@ -34,13 +36,19 @@ class _MyHomePageState extends State<MyHomePage> {
   ARKitPlane? plane;
   ARKitNode? node;
   String? anchorId;
-  String _selectedShape = 'sphere';
+  String _selectedShape = '';
+  final String _chars =
+      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  final Random _rnd = Random();
 
   @override
   void dispose() {
     arkitController.dispose();
     super.dispose();
   }
+
+  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -63,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: <Widget>[
                       GestureDetector(
                         child: const Text("Sphere"),
-                        onTap: () async {
+                        onTap: () {
                           _selectedShape = 'sphere';
                           Navigator.of(context).pop();
                         },
@@ -71,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       const Padding(padding: EdgeInsets.all(8.0)),
                       GestureDetector(
                         child: const Text("Cube"),
-                        onTap: () async {
+                        onTap: () {
                           _selectedShape = 'cube';
                           Navigator.of(context).pop();
                         },
@@ -79,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       const Padding(padding: EdgeInsets.all(8.0)),
                       GestureDetector(
                         child: const Text("Cylinder"),
-                        onTap: () async {
+                        onTap: () {
                           _selectedShape = 'cylinder';
                           Navigator.of(context).pop();
                         },
@@ -109,16 +117,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void onNodeTapHandler(List<String> nodesList) {
     final name = nodesList.first;
-    arkitController.update(name, materials: [
-      ARKitMaterial(
-        lightingModelName: ARKitLightingModel.physicallyBased,
-        diffuse: ARKitMaterialProperty.color(
-          Colors.yellow[600]!,
-        ),
-        metalness: ARKitMaterialProperty.value(1),
-        roughness: ARKitMaterialProperty.value(0),
-      )
-    ]);
+    if (name.contains('shape')) {
+      arkitController.update(name, materials: [
+        ARKitMaterial(
+          lightingModelName: ARKitLightingModel.physicallyBased,
+          diffuse: ARKitMaterialProperty.color(
+            Colors.yellow[600]!,
+          ),
+          metalness: ARKitMaterialProperty.value(1),
+          roughness: ARKitMaterialProperty.value(0),
+        )
+      ]);
+    }
   }
 
   void _handleAddAnchor(ARKitAnchor anchor) {
@@ -155,6 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onARTapHandler(ARKitTestResult point) {
+    final rand = getRandomString(15);
     final position = vector.Vector3(
       point.worldTransform.getColumn(3).x,
       point.worldTransform.getColumn(3).y,
@@ -167,7 +178,8 @@ class _MyHomePageState extends State<MyHomePage> {
         radius: 0.01,
         materials: [material],
       );
-      final node = ARKitNode(geometry: sphere, position: position);
+      final node =
+          ARKitNode(name: 'shape$rand', geometry: sphere, position: position);
       arkitController.add(node);
     } else if (_selectedShape == 'cube') {
       final material = ARKitMaterial(
@@ -178,7 +190,8 @@ class _MyHomePageState extends State<MyHomePage> {
         length: 0.01,
         materials: [material],
       );
-      final node = ARKitNode(geometry: cube, position: position);
+      final node =
+          ARKitNode(name: 'shape$rand', geometry: cube, position: position);
       arkitController.add(node);
     } else if (_selectedShape == 'cylinder') {
       final material = ARKitMaterial(
@@ -188,8 +201,10 @@ class _MyHomePageState extends State<MyHomePage> {
         height: 0.01,
         materials: [material],
       );
-      final node = ARKitNode(geometry: cube, position: position);
+      final node =
+          ARKitNode(name: 'shape$rand', geometry: cube, position: position);
       arkitController.add(node);
     }
+    _selectedShape = '';
   }
 }
