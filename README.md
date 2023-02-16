@@ -1,6 +1,12 @@
-# mam_ar_game
+# Simple AR game
 
-Aa ar game project.
+A mobile application in Flutter using ARKit for the iOS platform. The application allows for:
+
+• Displaying the current camera feed
+• Adding 3D objects to the scene by the user
+• Mapping surfaces of the real world using SLAM (Simultaneous Localization and Mapping)
+• Placing objects on mapped surfaces
+• User interaction with added objects
 
 ## Getting Started
 
